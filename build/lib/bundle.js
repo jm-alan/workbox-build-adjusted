@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /*
   Copyright 2019 Google LLC
@@ -19,7 +19,7 @@ const {
   writeFile
 } = require('fs-extra');
 
-const babel = require('rollup-plugin-babel');
+const babel = require('@rollup/plugin-babel');
 
 const omt = require('@surma/rollup-plugin-off-main-thread');
 
@@ -126,7 +126,6 @@ module.exports = async ({
     }
   } // Make sure that if there was a directory portion included in swDest, it's
   // preprended to all of the generated files.
-
 
   return files.map(file => {
     file.name = upath.format({

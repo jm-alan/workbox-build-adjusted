@@ -6,10 +6,10 @@
   https://opensource.org/licenses/MIT.
 */
 
-const {rollup} = require('rollup');
-const {terser} = require('rollup-plugin-terser');
-const {writeFile} = require('fs-extra');
-const babel = require('rollup-plugin-babel');
+const { rollup } = require('rollup');
+const { terser } = require('rollup-plugin-terser');
+const { writeFile } = require('fs-extra');
+const babel = require('@rollup/plugin-babel');
 const omt = require('@surma/rollup-plugin-off-main-thread');
 const upath = require('upath');
 const presetEnv = require('@babel/preset-env');
@@ -23,18 +23,18 @@ module.exports = async ({
   mode,
   sourcemap,
   swDest,
-  unbundledCode,
+  unbundledCode
 }) => {
   // We need to write this to the "real" file system, as Rollup won't read from
   // a custom file system.
-  const {dir, base} = upath.parse(swDest);
+  const { dir, base } = upath.parse(swDest);
 
-  const temporaryFile = tempy.file({name: base});
+  const temporaryFile = tempy.file({ name: base });
   await writeFile(temporaryFile, unbundledCode);
 
   const plugins = [
     resolve(),
-    replace({'process.env.NODE_ENV': JSON.stringify(mode)}),
+    replace({ 'process.env.NODE_ENV': JSON.stringify(mode) }),
     babel({
       // Disable the logic that checks for local Babel config files:
       // https://github.com/GoogleChrome/workbox/issues/2111
@@ -42,11 +42,11 @@ module.exports = async ({
       configFile: false,
       presets: [[presetEnv, {
         targets: {
-          browsers: babelPresetEnvTargets,
+          browsers: babelPresetEnvTargets
         },
-        loose: true,
-      }]],
-    }),
+        loose: true
+      }]]
+    })
   ];
 
   if (mode === 'production') {
@@ -54,15 +54,15 @@ module.exports = async ({
       mangle: {
         toplevel: true,
         properties: {
-          regex: /(^_|_$)/,
-        },
-      },
+          regex: /(^_|_$)/
+        }
+      }
     }));
   }
 
   const rollupConfig = {
     plugins,
-    input: temporaryFile,
+    input: temporaryFile
   };
 
   // Rollup will inline the runtime by default. If we don't want that, we need
@@ -76,10 +76,10 @@ module.exports = async ({
 
   const bundle = await rollup(rollupConfig);
 
-  const {output} = await bundle.generate({
+  const { output } = await bundle.generate({
     sourcemap,
     // Using an external Workbox runtime requires 'amd'.
-    format: inlineWorkboxRuntime ? 'es' : 'amd',
+    format: inlineWorkboxRuntime ? 'es' : 'amd'
   });
 
   const files = [];
@@ -87,7 +87,7 @@ module.exports = async ({
     if (chunkOrAsset.isAsset) {
       files.push({
         name: chunkOrAsset.fileName,
-        contents: chunkOrAsset.source,
+        contents: chunkOrAsset.source
       });
     } else {
       let code = chunkOrAsset.code;
@@ -98,13 +98,13 @@ module.exports = async ({
 
         files.push({
           name: sourceMapFile,
-          contents: chunkOrAsset.map.toString(),
+          contents: chunkOrAsset.map.toString()
         });
       }
 
       files.push({
         name: chunkOrAsset.fileName,
-        contents: code,
+        contents: code
       });
     }
   }
@@ -114,7 +114,7 @@ module.exports = async ({
   return files.map((file) => {
     file.name = upath.format({
       dir,
-      base: file.name,
+      base: file.name
     });
     return file;
   });
