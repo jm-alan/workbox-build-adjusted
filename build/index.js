@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /*
   Copyright 2018 Google LLC
@@ -21,7 +21,6 @@ const injectManifest = require('./inject-manifest');
 /**
  * @module workbox-build
  */
-
 
 module.exports = {
   copyWorkboxLibraries,
